@@ -8,14 +8,17 @@
 #include <utility>
 #include <vector>
 
-KMeans::KMeans(const std::vector<Point> &points, int dim) : points(points) { this->dim = dim; }
+KMeans::KMeans(const std::vector<Point> &points, int dim) : points(points) {
+  this->dim = dim;
+}
 
 std::vector<Cluster> KMeans::cluster(int k) {
   MyRand rng;
   return cluster(k, [this](auto a, auto b) { return default_diff(a, b); }, rng);
 }
 
-std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Point &a, const Point &b)> &diff) {
+std::vector<Cluster> KMeans::cluster(
+    int k, const std::function<double(const Point &a, const Point &b)> &diff) {
   MyRand rng;
   return cluster(k, diff, rng);
 }
@@ -24,13 +27,16 @@ std::vector<Cluster> KMeans::cluster(int k, MyRand &rng) {
   return cluster(k, [this](auto a, auto b) { return default_diff(a, b); }, rng);
 }
 
-std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Point &, const Point &)> &diff,
-                                     MyRand &rng) {
+std::vector<Cluster>
+KMeans::cluster(int k,
+                const std::function<double(const Point &, const Point &)> &diff,
+                MyRand &rng) {
   std::vector<std::pair<double, double>> limits;
   limits.resize(dim);
   std::fill(
       limits.begin(), limits.end(),
-      std::pair<double, double>{std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()});
+      std::pair<double, double>{std::numeric_limits<double>::infinity(),
+                                -std::numeric_limits<double>::infinity()});
 
   for (int i = 0; i < dim; i++) {
     for (auto &point : this->points) {
@@ -60,7 +66,8 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
 
       for (int j = 0; j < points.size(); j++) {
         dists[j] += diff(*last_centroid, points[j]);
-        if (dists[j] > maxDist && centroids.find(&points[j]) == centroids.end()) {
+        if (dists[j] > maxDist &&
+            centroids.find(&points[j]) == centroids.end()) {
           maxDist = dists[j];
           maxJ = j;
         }
@@ -104,7 +111,8 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
         }
         clusters[min_i].points.insert(&points[j]);
 
-        if (!flag && old_cluster_points[min_i].find(&points[j]) == old_cluster_points[min_i].end()) {
+        if (!flag && old_cluster_points[min_i].find(&points[j]) ==
+                         old_cluster_points[min_i].end()) {
           flag = true;
         }
       }
@@ -113,7 +121,8 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
     for (int i = 0; i < k; i++) {
       for (int d = 0; d < dim; d++) {
         if (clusters[i].points.empty()) {
-          clusters[i].centroid[d] = rng.uniform(limits[d].first, limits[d].second);
+          clusters[i].centroid[d] =
+              rng.uniform(limits[d].first, limits[d].second);
         } else {
           double sum = 0;
           for (const Point *point : clusters[i].points) {
@@ -135,55 +144,3 @@ double KMeans::default_diff(const Point &a, const Point &b) {
   }
   return std::sqrt(dist2);
 }
-
-// template <size_t N>
-// class KMeans {
-// private:
-//   using Point = array<double, N>;
-
-//   vector<Point> points;
-
-//   static double uniform(double min, double max) {
-//     static random_device device;
-//     static default_random_engine generator(device());
-//     return uniform_real_distribution<double>(min, max)(generator);
-//   }
-
-// public:
-//   KMeans(const vector<Point> &points) { this->points = points; }
-
-//   vector<Point> cluster(int k, const function<double(const Point &, const Point &)> &dist) {
-//     vector<Point> centroids;
-//     for (int i = 0; i < k; i++) {
-//       centroids.push_back(Point());
-//     }
-
-//     vector<pair<double, double>> limits;
-//     for (int i = 0; i < N; i++) {
-//       pair<double, double> limit = {numeric_limits<double>::max(),
-//                                     numeric_limits<double>::min()};
-//       for (auto &point : points) {
-//         limit.first = min(limit.first, point[i]);
-//         limit.second = max(limit.second, point[i]);
-//       }
-//       limits.push_back(limit);
-//       for (auto &centroid : centroids) {
-//         centroid[i] = uniform(limit.first, limit.second);
-//       }
-//     }
-
-//     return centroids;
-//   }
-// };
-
-// int main() {
-//   KMeans<3> km = KMeans<3>({{1, 2, 3}, {4, 5, 6}});
-//   auto centroids = km.cluster(2, nullptr);
-//   for (auto &point : centroids) {
-//     for (auto &x : point) {
-//       cout << x << " ";
-//     }
-//     cout << endl;
-//   }
-//   return 0;
-// }
