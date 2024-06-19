@@ -1,4 +1,4 @@
-## Color Scheme Generator
+# Color Scheme Generator
 
 ### About
 
@@ -6,7 +6,7 @@ This is a command line tool for generating color schemes from a given image.
 
 ### Installation
 
-Xmake is recommended for building this project. Alternatively you may use any other tools you like.
+[Xmake](https://github.com/xmake-io/xmake) is recommended for building this project. Alternatively you may use any other tool you like.
 
 ### Usage
 
