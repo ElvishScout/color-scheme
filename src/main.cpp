@@ -1,11 +1,35 @@
 #include "color_scheme.h"
+#include "color_space.h"
 #include "myrand.h"
 
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <stdexcept>
+#include <utility>
 #include <vector>
+
+void display(const std::vector<std::pair<RGB, double>> &scheme, bool colorful) {
+  for (auto &color : scheme) {
+    unsigned char R = round(color.first.r);
+    unsigned char G = round(color.first.g);
+    unsigned char B = round(color.first.b);
+
+    unsigned char k = (R > 127 && G > 127 && B > 127) ? 0 : 255;
+
+    unsigned char r = k;
+    unsigned char g = k;
+    unsigned char b = k;
+
+    if (colorful) {
+      printf("\033[1m\033[38;2;%d;%d;%dm\033[48;2;%d;%d;%dm  #%02x%02x%02x | %5.2f%%  \033[0m\n", r, g, b, R, G, B, R,
+             G, B, color.second * 100);
+    } else {
+      printf("#%02x%02x%02x | %5.2f%%\n", R, G, B, color.second * 100);
+    }
+  }
+}
 
 int main(int argc, const char **argv) {
   const char *help_msg = "Usage: color-scheme [OPTION] FILE\n"
@@ -70,25 +94,23 @@ int main(int argc, const char **argv) {
     printf("%s", help_msg);
     exit(0);
   }
+
   if (!filename) {
-    exit(1);
+    throw std::runtime_error("error: no input file");
+  }
+  if (clusters < 1) {
+    throw std::runtime_error("error: number of clusters must be positive");
+  }
+  if (samples < 1) {
+    throw std::runtime_error("error: number of samples must be positive");
+  }
+  if (clusters > samples) {
+    throw std::runtime_error("error: more clusters than samples");
   }
 
   MyRand rng = seed < 0 ? MyRand() : MyRand(seed);
   auto scheme = color_scheme(filename, clusters, samples, rng);
-  for (auto &color : scheme) {
-    unsigned char R = std::round(color.first.r);
-    unsigned char G = std::round(color.first.g);
-    unsigned char B = std::round(color.first.b);
-    unsigned char r = ~R;
-    unsigned char g = ~G;
-    unsigned char b = ~B;
-    if (colorful) {
-      std::printf("\x1b[38;2;%d;%d;%dm\x1b[48;2;%d;%d;%dm  #%02x%02x%02x | %5.2f%%  \x1b[0m\n", r, g, b, R, G, B, R, G,
-                  B, color.second * 100);
-    } else {
-      std::printf("#%02x%02x%02x | %5.2f%%\n", R, G, B, color.second * 100);
-    }
-  }
+  display(scheme, colorful);
+
   return 0;
 }

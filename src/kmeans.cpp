@@ -131,7 +131,7 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
 double KMeans::default_diff(const Point &a, const Point &b) {
   double dist2 = 0;
   for (int i = 0; i < dim; i++) {
-    dist2 += std::pow(a[i] - b[i], 2);
+    dist2 += pow(a[i] - b[i], 2);
   }
-  return std::sqrt(dist2);
+  return sqrt(dist2);
 }
