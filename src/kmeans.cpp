@@ -8,17 +8,14 @@
 #include <utility>
 #include <vector>
 
-KMeans::KMeans(const std::vector<Point> &points, int dim) : points(points) {
-  this->dim = dim;
-}
+KMeans::KMeans(const std::vector<Point> &points, int dim) : points(points) { this->dim = dim; }
 
 std::vector<Cluster> KMeans::cluster(int k) {
   MyRand rng;
   return cluster(k, [this](auto a, auto b) { return default_diff(a, b); }, rng);
 }
 
-std::vector<Cluster> KMeans::cluster(
-    int k, const std::function<double(const Point &a, const Point &b)> &diff) {
+std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Point &a, const Point &b)> &diff) {
   MyRand rng;
   return cluster(k, diff, rng);
 }
@@ -27,16 +24,13 @@ std::vector<Cluster> KMeans::cluster(int k, MyRand &rng) {
   return cluster(k, [this](auto a, auto b) { return default_diff(a, b); }, rng);
 }
 
-std::vector<Cluster>
-KMeans::cluster(int k,
-                const std::function<double(const Point &, const Point &)> &diff,
-                MyRand &rng) {
+std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Point &, const Point &)> &diff,
+                                     MyRand &rng) {
   std::vector<std::pair<double, double>> limits;
   limits.resize(dim);
   std::fill(
       limits.begin(), limits.end(),
-      std::pair<double, double>{std::numeric_limits<double>::infinity(),
-                                -std::numeric_limits<double>::infinity()});
+      std::pair<double, double>{std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()});
 
   for (int i = 0; i < dim; i++) {
     for (auto &point : this->points) {
@@ -66,8 +60,7 @@ KMeans::cluster(int k,
 
       for (int j = 0; j < points.size(); j++) {
         dists[j] += diff(*last_centroid, points[j]);
-        if (dists[j] > maxDist &&
-            centroids.find(&points[j]) == centroids.end()) {
+        if (dists[j] > maxDist && centroids.find(&points[j]) == centroids.end()) {
           maxDist = dists[j];
           maxJ = j;
         }
@@ -111,8 +104,7 @@ KMeans::cluster(int k,
         }
         clusters[min_i].points.insert(&points[j]);
 
-        if (!flag && old_cluster_points[min_i].find(&points[j]) ==
-                         old_cluster_points[min_i].end()) {
+        if (!flag && old_cluster_points[min_i].find(&points[j]) == old_cluster_points[min_i].end()) {
           flag = true;
         }
       }
@@ -121,8 +113,7 @@ KMeans::cluster(int k,
     for (int i = 0; i < k; i++) {
       for (int d = 0; d < dim; d++) {
         if (clusters[i].points.empty()) {
-          clusters[i].centroid[d] =
-              rng.uniform(limits[d].first, limits[d].second);
+          clusters[i].centroid[d] = rng.uniform(limits[d].first, limits[d].second);
         } else {
           double sum = 0;
           for (const Point *point : clusters[i].points) {
