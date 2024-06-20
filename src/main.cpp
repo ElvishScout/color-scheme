@@ -84,6 +84,8 @@ int main(int argc, const char **argv) {
       } else if (!strcmp(key, "seed")) {
         seed = atoi(value);
         i++;
+      } else {
+        throw std::runtime_error(std::string() + "error: unknown parameter \"" + key + "\"");
       }
     } else if (value) {
       filename = value;
@@ -97,15 +99,6 @@ int main(int argc, const char **argv) {
 
   if (!filename) {
     throw std::runtime_error("error: no input file");
-  }
-  if (clusters < 1) {
-    throw std::runtime_error("error: number of clusters must be positive");
-  }
-  if (samples < 1) {
-    throw std::runtime_error("error: number of samples must be positive");
-  }
-  if (clusters > samples) {
-    throw std::runtime_error("error: more clusters than samples");
   }
 
   MyRand rng = seed < 0 ? MyRand() : MyRand(seed);

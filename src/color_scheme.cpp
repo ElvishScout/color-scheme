@@ -17,9 +17,15 @@ std::vector<std::pair<RGB, double>> color_scheme(const std::string &filename, in
   return color_scheme(filename, schemes, samples, rng);
 }
 
-std::vector<std::pair<RGB, double>> color_scheme(const std::string &filename, int schemes, int samples, MyRand &rng) {
-  if (schemes > samples) {
-    schemes = samples;
+std::vector<std::pair<RGB, double>> color_scheme(const std::string &filename, int clusters, int samples, MyRand &rng) {
+  if (clusters < 1) {
+    throw std::runtime_error("error: number of clusters must be positive");
+  }
+  if (samples < 1) {
+    throw std::runtime_error("error: number of samples must be positive");
+  }
+  if (clusters > samples) {
+    throw std::runtime_error("error: more clusters than samples");
   }
 
   std::vector<Point> points;
@@ -40,13 +46,13 @@ std::vector<std::pair<RGB, double>> color_scheme(const std::string &filename, in
 
   KMeans km(points, 3);
 
-  std::vector<Cluster> clusters = km.cluster(
-      schemes, [](const Point &a, const Point &b) { return color_diff({a[0], a[1], a[2]}, {b[0], b[1], b[2]}); }, rng);
+  std::vector<Cluster> output = km.cluster(
+      clusters, [](const Point &a, const Point &b) { return color_diff({a[0], a[1], a[2]}, {b[0], b[1], b[2]}); }, rng);
 
-  std::sort(clusters.begin(), clusters.end(), [](Cluster &a, Cluster &b) { return a.points.size() > b.points.size(); });
+  std::sort(output.begin(), output.end(), [](Cluster &a, Cluster &b) { return a.points.size() > b.points.size(); });
 
   std::vector<std::pair<RGB, double>> results;
-  for (Cluster &cluster : clusters) {
+  for (Cluster &cluster : output) {
     if (cluster.points.empty()) {
       break;
     }
