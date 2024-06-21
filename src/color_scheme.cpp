@@ -1,7 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include "color_scheme.h"
-#include "color_space.h"
 #include "kmeans.h"
 #include "myrand.h"
 #include "stb_image.h"
