@@ -7,7 +7,6 @@ target("color-scheme")
     set_toolset("ld", "g++")
     add_files("src/*.cpp")
     add_includedirs("include")
-    -- set_optimize("aggressive")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

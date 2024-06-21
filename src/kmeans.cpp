@@ -2,7 +2,6 @@
 #include "myrand.h"
 
 #include <cmath>
-#include <functional>
 #include <limits>
 #include <unordered_set>
 #include <utility>
@@ -12,20 +11,10 @@ KMeans::KMeans(const std::vector<Point> &points, int dim) : points(points) { thi
 
 std::vector<Cluster> KMeans::cluster(int k) {
   MyRand rng;
-  return cluster(k, [this](auto a, auto b) { return default_diff(a, b); }, rng);
-}
-
-std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Point &a, const Point &b)> &diff) {
-  MyRand rng;
-  return cluster(k, diff, rng);
+  return cluster(k, rng);
 }
 
 std::vector<Cluster> KMeans::cluster(int k, MyRand &rng) {
-  return cluster(k, [this](auto a, auto b) { return default_diff(a, b); }, rng);
-}
-
-std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Point &, const Point &)> &diff,
-                                     MyRand &rng) {
   std::vector<std::pair<double, double>> limits;
   limits.resize(dim);
   std::fill(
@@ -59,7 +48,7 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
       int maxJ = -1;
 
       for (int j = 0; j < points.size(); j++) {
-        dists[j] += diff(*last_centroid, points[j]);
+        dists[j] += dist_sq(*last_centroid, points[j]);
         if (dists[j] > maxDist && centroids.find(&points[j]) == centroids.end()) {
           maxDist = dists[j];
           maxJ = j;
@@ -73,7 +62,7 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
     }
 
     for (const Point *centroid : centroids) {
-      clusters.push_back(Cluster{*centroid, {}, 0});
+      clusters.push_back(Cluster{*centroid, {}});
     }
   }
 
@@ -84,7 +73,6 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
   while (flag) {
     for (int i = 0; i < k; i++) {
       old_cluster_points[i] = std::move(clusters[i].points);
-      clusters[i].radius = 0;
     }
 
     flag = false;
@@ -92,16 +80,13 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
       double min_dist = std::numeric_limits<double>::infinity();
       int min_i = -1;
       for (int i = 0; i < k; i++) {
-        double dist = diff(clusters[i].centroid, points[j]);
+        double dist = dist_sq(clusters[i].centroid, points[j]);
         if (dist < min_dist) {
           min_dist = dist;
           min_i = i;
         }
       }
       if (min_i != -1) {
-        if (min_dist > clusters[min_i].radius) {
-          clusters[min_i].radius = min_dist;
-        }
         clusters[min_i].points.insert(&points[j]);
 
         if (!flag && old_cluster_points[min_i].find(&points[j]) == old_cluster_points[min_i].end()) {
@@ -128,7 +113,7 @@ std::vector<Cluster> KMeans::cluster(int k, const std::function<double(const Poi
   return clusters;
 }
 
-double KMeans::default_diff(const Point &a, const Point &b) {
+double KMeans::dist_sq(const Point &a, const Point &b) {
   double dist2 = 0;
   for (int i = 0; i < dim; i++) {
     dist2 += pow(a[i] - b[i], 2);

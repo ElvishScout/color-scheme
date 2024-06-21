@@ -37,17 +37,14 @@ std::vector<std::pair<RGB, double>> color_scheme(const std::string &filename, in
     }
     for (int i = 0; i < samples; i++) {
       int index = rng.randint(0, x * y) * 3;
-      RGB rgb = {(double)data[index], (double)data[index + 1], (double)data[index + 2]};
-      LAB lab = rgb_to_lab(rgb);
-      points.push_back({lab.l, lab.a, lab.b});
+      points.push_back({(double)data[index], (double)data[index + 1], (double)data[index + 2]});
     }
     stbi_image_free(data);
   }
 
   KMeans km(points, 3);
 
-  std::vector<Cluster> output = km.cluster(
-      clusters, [](const Point &a, const Point &b) { return color_diff({a[0], a[1], a[2]}, {b[0], b[1], b[2]}); }, rng);
+  std::vector<Cluster> output = km.cluster(clusters, rng);
 
   std::sort(output.begin(), output.end(), [](Cluster &a, Cluster &b) { return a.points.size() > b.points.size(); });
 
@@ -56,9 +53,8 @@ std::vector<std::pair<RGB, double>> color_scheme(const std::string &filename, in
     if (cluster.points.empty()) {
       break;
     }
-    LAB lab = {cluster.centroid[0], cluster.centroid[1], cluster.centroid[2]};
-    RGB rgb = lab_to_rgb(lab);
-    results.push_back({rgb, (double)cluster.points.size() / samples});
+    results.push_back(
+        {{cluster.centroid[0], cluster.centroid[1], cluster.centroid[2]}, (double)cluster.points.size() / samples});
   };
 
   return results;
