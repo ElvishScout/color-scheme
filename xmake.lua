@@ -1,12 +1,11 @@
 add_rules("mode.debug", "mode.release")
+add_requires("fmt")
 
 target("color-scheme")
     set_kind("binary")
-    set_toolset("cc", "gcc")
-    set_toolset("cxx", "g++")
-    set_toolset("ld", "g++")
     add_files("src/*.cpp")
     add_includedirs("include")
+    add_packages("fmt")
 
 --
 -- If you want to known more usage about xmake, please see https://xmake.io

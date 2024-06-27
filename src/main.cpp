@@ -1,8 +1,10 @@
 #include "color_scheme.h"
 #include "myrand.h"
 
+#include <fmt/color.h>
+#include <fmt/core.h>
+
 #include <cmath>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
@@ -21,7 +23,7 @@
   "  --cluster clusters  number of clusters for k-means algorithm\n"                                                   \
   "  --seed seed         RNG seed, negative for random seed\n"
 
-void display(const std::vector<std::pair<RGB, double>> &scheme, bool colorful, int lines) {
+void output(const std::vector<std::pair<RGB, double>> &scheme, bool colorful, int lines) {
   for (int i = 0; i < scheme.size() && (lines <= 0 || i < lines); i++) {
     unsigned char R = round(scheme[i].first.r);
     unsigned char G = round(scheme[i].first.g);
@@ -33,11 +35,13 @@ void display(const std::vector<std::pair<RGB, double>> &scheme, bool colorful, i
     unsigned char g = k;
     unsigned char b = k;
 
+    double percentage = scheme[i].second * 100;
+
     if (colorful) {
-      printf("\033[1m\033[38;2;%d;%d;%dm\033[48;2;%d;%d;%dm  #%02x%02x%02x | %5.2f%%  \033[0m\n", r, g, b, R, G, B, R,
-             G, B, scheme[i].second * 100);
+      fmt::print(fmt::bg(fmt::rgb(R, G, B)) | fmt::fg(fmt::rgb(r, b, g)) | fmt::emphasis::bold,
+                 "  #{:02x}{:02x}{:02x} | {:5.2f}%  \n", R, G, B, percentage);
     } else {
-      printf("#%02x%02x%02x | %5.2f%%\n", R, G, B, scheme[i].second * 100);
+      fmt::print("#{:02x}{:02x}{:02x} | {:5.2f}%\n", R, G, B, percentage);
     }
   }
 }
@@ -115,7 +119,7 @@ int main(int argc, const char **argv) {
 
   MyRand rng = seed < 0 ? MyRand() : MyRand(seed);
   auto scheme = color_scheme(filename, clusters, samples, rng);
-  display(scheme, colorful, lines);
+  output(scheme, colorful, lines);
 
   return 0;
 }
