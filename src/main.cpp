@@ -11,17 +11,16 @@
 #include <utility>
 #include <vector>
 
-#define HELP_MSG                                                                                                       \
-  "Usage: %s [OPTION] FILE\n"                                                                                          \
-  "Generate color scheme from image, based on k-means algorithm.\n"                                                    \
-  "\n"                                                                                                                 \
-  "Options:\n"                                                                                                         \
-  "  -c, --color         enable colorful printing\n"                                                                   \
-  "  -h, --help          display this help and exit\n"                                                                 \
-  "  -n lines            max output lines\n"                                                                           \
-  "  --sample samples    sample size\n"                                                                                \
-  "  --cluster clusters  number of clusters for k-means algorithm\n"                                                   \
-  "  --seed seed         RNG seed, negative for random seed\n"
+const char *HELP_MSG = "Usage: {} [OPTION] FILE\n"
+                       "Generate color scheme from image, based on k-means algorithm.\n"
+                       "\n"
+                       "Options:\n"
+                       "  -c, --color         enable colorful printing\n"
+                       "  -h, --help          display this help and exit\n"
+                       "  -n lines            max output lines\n"
+                       "  --sample samples    sample size\n"
+                       "  --cluster clusters  number of clusters for k-means algorithm\n"
+                       "  --seed seed         RNG seed, negative for random seed\n";
 
 void output(const std::vector<std::pair<RGB, double>> &scheme, bool colorful, int lines) {
   for (int i = 0; i < scheme.size() && (lines <= 0 || i < lines); i++) {
@@ -109,7 +108,7 @@ int main(int argc, const char **argv) {
       }
     }
     basename++;
-    printf(HELP_MSG, basename);
+    fmt::print(HELP_MSG, basename);
     exit(0);
   }
 
